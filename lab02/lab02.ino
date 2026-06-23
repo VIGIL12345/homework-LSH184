@@ -1,13 +1,23 @@
 // 定义LED引脚，ESP32板载LED接GPIO2
 const int ledPin = 2;
 
+// millis定时变量
+unsigned long previousTime = 0;
+const unsigned long blinkInterval = 1000;
+bool ledState = LOW;
+
 void setup() {
-  // 初始化串口，波特率115200
   Serial.begin(115200);
-  // 设置LED引脚为输出模式
   pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
 }
 
 void loop() {
-  // 后续填充millis闪烁逻辑
+  unsigned long currentTime = millis();
+  if(currentTime - previousTime >= blinkInterval)
+  {
+    previousTime = currentTime;
+    ledState = !ledState;
+    digitalWrite(ledPin, ledState);
+  }
 }
