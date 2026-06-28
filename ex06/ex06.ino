@@ -1,20 +1,39 @@
-// ex06 双通道反相PWM双闪灯效 - 基础框架
-#define LED_A_PIN 2   // LED_A引脚（板载LED）
-#define LED_B_PIN 17  // LED_B引脚（外接LED）
+// ex06 双通道反相PWM双闪灯效 - 核心功能版
+#define LED_A_PIN 2
+#define LED_B_PIN 17
 
-int brightnessA = 0;   // LED_A占空比 0~255
-int fadeDir = 1;       // 渐变方向：1=渐亮，-1=渐暗
-unsigned long lastFadeTime = 0; // 渐变更新时间戳
-const int fadeInterval = 15;    // 渐变步长间隔（毫秒）
+int brightnessA = 0;
+int fadeDir = 1;
+unsigned long lastFadeTime = 0;
+const int fadeInterval = 15;
 
 void setup() {
   Serial.begin(115200);
   pinMode(LED_A_PIN, OUTPUT);
   pinMode(LED_B_PIN, OUTPUT);
+  // 初始状态：A全灭，B全亮
   analogWrite(LED_A_PIN, 0);
-  analogWrite(LED_B_PIN, 255); // 初始状态：A灭，B最亮
+  analogWrite(LED_B_PIN, 255);
+  Serial.println("双通道反相PWM灯效启动");
 }
 
 void loop() {
-  // 后续填充反相渐变逻辑
+  unsigned long now = millis();
+
+  // 定时更新PWM占空比
+  if (now - lastFadeTime >= fadeInterval) {
+    lastFadeTime = now;
+    
+    // 更新LED_A亮度
+    brightnessA += fadeDir;
+    
+    // 到达亮度边界时反转方向
+    if (brightnessA <= 0 || brightnessA >= 255) {
+      fadeDir = -fadeDir;
+    }
+
+    // 输出PWM：LED_B亮度与LED_A完全反相
+    analogWrite(LED_A_PIN, brightnessA);
+    analogWrite(LED_B_PIN, 255 - brightnessA);
+  }
 }
